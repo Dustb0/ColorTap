@@ -37,13 +37,15 @@ public class GameManager : MonoBehaviour
     public List<ColorTapButton> SelectButtons;
 
     private const float TOTAL_TIME = 60;
-    private const int TOTAL_BUTTONS = 20;
+    private const int TOTAL_BUTTONS = 15;
 
     private float m_progressFullWidth;
     private GamePhase m_currentPhase;
     private float m_remainingTime;
     private int m_screenIndex;
     private TapColor m_selectedColor;
+    private Image m_progressImageBar;
+    private Image m_progressImageBG;
     
     #endregion
 
@@ -52,16 +54,19 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         // Save progressrect
-        m_progressFullWidth = FullRect.sizeDelta.x;
-
-        // Set remaining time
-        m_remainingTime = TOTAL_TIME;
+        m_progressFullWidth = FullRect.rect.width;
 
         // Hide all game buttons
         foreach(ColorTapButton btn in ButtonPool)
         {
             btn.enabled = false;
         }
+
+        // Hide progressbar
+        m_progressImageBar = ProgressRect.GetComponent<Image>();
+        m_progressImageBG = FullRect.GetComponent<Image>();
+        m_progressImageBar.enabled = false;
+        m_progressImageBG.enabled = false;
 
         m_currentPhase = GamePhase.SelectColor;
         PrepareColorSelection(1);
@@ -117,6 +122,12 @@ public class GameManager : MonoBehaviour
         // Set game phase
         m_currentPhase = GamePhase.Game;
         m_screenIndex = 0;
+
+        // Set time & Show timebar
+        m_remainingTime = TOTAL_TIME;
+        m_progressImageBar.enabled = true;
+        m_progressImageBG.enabled = true;
+
         SetupNewScreen();
     }
 
@@ -174,13 +185,24 @@ public class GameManager : MonoBehaviour
     private void SetupNewScreen()
     {
         // Set amount of current visible tap buttons to press
-        int visibleButtons = 4 + m_screenIndex;
+        int visibleButtons = Mathf.Max(4 + m_screenIndex);
 
         // Collect possible button spots
-        
+        List<ColorTapButton> possibleButtons = new List<ColorTapButton>(ButtonPool.Count);
+        possibleButtons.AddRange(ButtonPool);
 
         for(int i = 0; i < visibleButtons; ++i)
         {
+            // Get one random button out of the collection and display it
+            int index = Random.Range(0, possibleButtons.Count - 1);
+            ColorTapButton current = possibleButtons[index];
+
+            // Always assign the TO-TIP-color first
+            if(i == 1) current.TColor = m_selectedColor;
+            else
+            {
+                
+            }
 
         }
 
