@@ -26,11 +26,13 @@ public class ColorTapButton : Button
 
 	void OnDisable()
     {
+        animator.enabled = false;
         image.enabled = false;
     }
 
     void OnEnable()
     {
+        animator.enabled = true;
         image.enabled = true;
     }
 }

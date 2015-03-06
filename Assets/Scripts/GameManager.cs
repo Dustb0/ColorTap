@@ -8,10 +8,6 @@ public class GameManager : MonoBehaviour
 {
     #region " Resources "
 
-    // Buttonsprites
-    public Sprite TapFullSprite;
-    public Sprite TapHalfSprite;
-
     // Button colors
     public Color TapRed;
     public Color TapBlue;
@@ -35,14 +31,14 @@ public class GameManager : MonoBehaviour
     public RectTransform ProgressRect;
     public RectTransform FullRect;
     public List<ColorTapButton> SelectButtons;
+    public Animator TapBoardAnimator;
 
-    private const float TOTAL_TIME = 60;
-    private const int TOTAL_BUTTONS = 15;
+    private const float TOTAL_TIME = 30;
 
     private float m_progressFullWidth;
     private GamePhase m_currentPhase;
     private float m_remainingTime;
-    private int m_screenIndex;
+    private int m_levelIndex;
     private TapColor m_selectedColor;
     private Image m_progressImageBar;
     private Image m_progressImageBG;
@@ -57,10 +53,7 @@ public class GameManager : MonoBehaviour
         m_progressFullWidth = FullRect.rect.width;
 
         // Hide all game buttons
-        foreach(ColorTapButton btn in ButtonPool)
-        {
-            btn.enabled = false;
-        }
+        foreach (ColorTapButton btn in ButtonPool) btn.enabled = false;
 
         // Hide progressbar
         m_progressImageBar = ProgressRect.GetComponent<Image>();
@@ -69,7 +62,8 @@ public class GameManager : MonoBehaviour
         m_progressImageBG.enabled = false;
 
         m_currentPhase = GamePhase.SelectColor;
-        PrepareColorSelection(1);
+        m_levelIndex = 1;
+        PrepareColorSelection();
     }
 
     void Update()
@@ -94,17 +88,17 @@ public class GameManager : MonoBehaviour
 
     #region " Color Selection "
 
-    public void PrepareColorSelection(int level)
-    { 
-        switch(level)
+    public void PrepareColorSelection()
+    {
+        switch (m_levelIndex)
         {
             case 1:
                 SelectButtons[0].TColor = TapColor.Red;
                 SelectButtons[1].TColor = TapColor.Green;
                 SelectButtons[2].TColor = TapColor.Blue;
-                SetupButton(SelectButtons[0]);
-                SetupButton(SelectButtons[1]);
-                SetupButton(SelectButtons[2]);
+                SetupButtonColor(SelectButtons[0]);
+                SetupButtonColor(SelectButtons[1]);
+                SetupButtonColor(SelectButtons[2]);
                 break;
         }
     }
@@ -113,15 +107,16 @@ public class GameManager : MonoBehaviour
     {
         // Determine clicked button
         ColorTapButton btn = EventSystem.current.currentSelectedGameObject.GetComponent<ColorTapButton>();
-        
+        m_selectedColor = btn.TColor;
+
         foreach(ColorTapButton b in SelectButtons)
         {
-            b.animator.SetTrigger("SelectedButton");
+            b.animator.SetTrigger("HideButton");
         }
 
         // Set game phase
         m_currentPhase = GamePhase.Game;
-        m_screenIndex = 0;
+        m_levelIndex = 1;
 
         // Set time & Show timebar
         m_remainingTime = TOTAL_TIME;
@@ -137,11 +132,8 @@ public class GameManager : MonoBehaviour
 
     public List<ColorTapButton> ButtonPool;
 
-    private void SetupButton(ColorTapButton button)
+    private void SetupButtonColor(ColorTapButton button)
     {
-        // Setup sprite
-        button.image.sprite = button.TType == TapType.Full ? TapFullSprite : TapHalfSprite;
-
         // Set color
         switch (button.TColor)
         {
@@ -176,6 +168,26 @@ public class GameManager : MonoBehaviour
     {
         // Determine clicked button
         ColorTapButton btn = EventSystem.current.currentSelectedGameObject.GetComponent<ColorTapButton>();   
+
+
+
+        // Check if it's selected color
+        switch(m_levelIndex)
+        {
+            case 1:
+                // Simple 1/1 color 
+                if(btn.TColor == m_selectedColor)
+                {
+                    // Made it!
+                    SetupNewScreen();
+                }
+                else
+                {
+                    // Shake screen!
+                    TapBoardAnimator.SetTrigger("Wrong");
+                }
+                break;
+        }
     }
 
     #endregion
@@ -184,26 +196,32 @@ public class GameManager : MonoBehaviour
 
     private void SetupNewScreen()
     {
-        // Set amount of current visible tap buttons to press
-        int visibleButtons = Mathf.Max(4 + m_screenIndex);
+        // Collect possible colors
+        List<TapColor> possibleColors = new List<TapColor>(ButtonPool.Count);
+        possibleColors.Add(TapColor.Blue);
+        possibleColors.Add(TapColor.Cyan);
+        possibleColors.Add(TapColor.Green);
+        possibleColors.Add(TapColor.Magenta);
+        possibleColors.Add(TapColor.Red);
+        possibleColors.Add(TapColor.Yellow);
 
-        // Collect possible button spots
-        List<ColorTapButton> possibleButtons = new List<ColorTapButton>(ButtonPool.Count);
-        possibleButtons.AddRange(ButtonPool);
+        // Enable all buttons
+        foreach (ColorTapButton btn in ButtonPool) btn.enabled = true;
 
-        for(int i = 0; i < visibleButtons; ++i)
+        for (int i = 0; i < ButtonPool.Count; ++i)
         {
             // Get one random button out of the collection and display it
-            int index = Random.Range(0, possibleButtons.Count - 1);
-            ColorTapButton current = possibleButtons[index];
+            int index = Random.Range(0, possibleColors.Count - 1);
+            
+            // Assign the color
+            ButtonPool[i].TColor = possibleColors[index];
+            SetupButtonColor(ButtonPool[i]);
 
-            // Always assign the TO-TIP-color first
-            if(i == 1) current.TColor = m_selectedColor;
-            else
-            {
-                
-            }
+            // Remove the assigned color from the list of possible choices
+            possibleColors.RemoveAt(index);
 
+            // Play Entrance animation
+            ButtonPool[i].animator.SetTrigger("ShowButton");
         }
 
     }
