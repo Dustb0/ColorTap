@@ -50,6 +50,7 @@
      <Compile Include="Assets\Scripts\AdvertisementTest.cs" />
      <Compile Include="Assets\Scripts\ColorTapButton.cs" />
      <Compile Include="Assets\Scripts\GameManager.cs" />
+     <Compile Include="Assets\Scripts\HighscoreList.cs" />
      <None Include="Assets\Plugins\Android\unityads\proguard-project.txt" />
      <None Include="Assets\Plugins\Android\unityads\build.xml" />
      <None Include="Assets\Plugins\Android\unityads\res\values\strings.xml" />

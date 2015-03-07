@@ -40,6 +40,8 @@ public class GameManager : MonoBehaviour
     public Text AchievedPointsText;
     public Button SubmitScoreButton;
     public Image ProgressbarBG;
+    public GameObject GameMenuPanel;
+    public Text HighscoreListeText;
 
     private const float TOTAL_TIME = 30;
 
@@ -64,6 +66,15 @@ public class GameManager : MonoBehaviour
         // Save progressrect
         m_progressFullWidth = FullRect.rect.width;
 
+        PrepareMainMenu();
+
+        m_currentPhase = GamePhase.SelectColor;
+        m_levelIndex = 1;
+        PrepareColorSelection();
+    }
+
+    private void PrepareMainMenu()
+    {
         // Hide all game buttons
         foreach (ColorTapButton btn in ButtonPool) btn.enabled = false;
 
@@ -79,10 +90,8 @@ public class GameManager : MonoBehaviour
         AchievedPointsText.enabled = false;
         SubmitScoreButton.gameObject.SetActive(false);
         EnterScoreInput.gameObject.SetActive(false);
-
-        m_currentPhase = GamePhase.SelectColor;
-        m_levelIndex = 1;
-        PrepareColorSelection();
+        GameMenuPanel.SetActive(false);
+        HighscoreListeText.enabled = false;
     }
 
     void Update()
@@ -106,7 +115,7 @@ public class GameManager : MonoBehaviour
                     // Add current combopoint amount
                     m_pointCount += m_comboCount;
 
-                    // Switch to highscore-screen
+                    // Switch to highscore-screen,
                     PrepareHighscore();
                 }
 
@@ -137,20 +146,53 @@ public class GameManager : MonoBehaviour
     {
         m_currentPhase = GamePhase.Highscore;
 
-        // Hide progressbar
+        // Hide progressbar & menu
         m_progressImageBar.enabled = false;
         m_progressImageBG.enabled = false;
         ProgressbarBG.enabled = false;
+        GameMenuPanel.SetActive(false);
 
         // Show title text
         TitleText.enabled = true;
-        TitleText.text = "Submit Highscore";
-
-        // Show achieved points
+        TitleText.text = "Highscore";
         AchievedPointsText.enabled = true;
-        AchievedPointsText.text = "Achieved " + m_pointCount + " points!";
-        SubmitScoreButton.gameObject.SetActive(true);
-        EnterScoreInput.gameObject.SetActive(true);
+
+        // Only allow to submit highscore if it was better 
+        if(Highscore.AddNewScore(m_pointCount, EnterScoreInput.text))
+        {
+            SubmitScoreButton.gameObject.SetActive(true);
+            EnterScoreInput.gameObject.SetActive(true);
+            AchievedPointsText.text = (Highscore.AchievedHighscorePlace + 1) + "th Place ~ Achieved " + m_pointCount + " points!";
+        }
+        else
+        {
+            AchievedPointsText.text = "Achieved " + m_pointCount + " points!";    
+        }
+
+        // Display current Highscore positions
+        HighscoreListeText.enabled = true;
+
+        // Load highscore
+        Highscore list = Highscore.Get();
+        string scoreList = ""; 
+
+        // Display entries
+        for (int i = 0; i < Highscore.MAX_COUNT; ++i)
+        {
+            // Check how many entries there are
+            if (list.Count > i)
+            {
+                scoreList += (i + 1) + "th " + list[i].PlayerName + " - " + list[i].ScorePoints + " Points \n";
+            }
+            else
+            {
+                // Empty entry
+                scoreList += (i + 1) + ". --- \n";
+            }
+        }
+
+        // Set text
+        HighscoreListeText.text = scoreList;
 
         // Hide game screen
         foreach (ColorTapButton b in ButtonPool) b.animator.SetTrigger("HideButton");
@@ -175,6 +217,7 @@ public class GameManager : MonoBehaviour
         m_progressImageBar.enabled = true;
         m_progressImageBG.enabled = true;
         ProgressbarBG.enabled = true;
+        GameMenuPanel.SetActive(true);
 
         SetupNewScreen();
     }
@@ -294,7 +337,10 @@ public class GameManager : MonoBehaviour
     {
         if(EnterScoreInput.text.Trim().Length > 0)
         {
-
+            Highscore.PreparedEntry.PlayerName = EnterScoreInput.text;
+            Highscore.Save();
+            m_currentPhase = GamePhase.SelectColor;
+            PrepareMainMenu();
         }
     }
 
