@@ -25,13 +25,21 @@ public class GameManager : MonoBehaviour
         Menu,
         Tutorial,
         SelectColor,
-        Game
+        Game,
+        Highscore
     }
 
     public RectTransform ProgressRect;
     public RectTransform FullRect;
     public List<ColorTapButton> SelectButtons;
     public Animator TapBoardAnimator;
+
+    // Menu Controls
+    public Text TitleText;
+    public InputField EnterScoreInput;
+    public Text AchievedPointsText;
+    public Button SubmitScoreButton;
+    public Image ProgressbarBG;
 
     private const float TOTAL_TIME = 30;
 
@@ -42,6 +50,10 @@ public class GameManager : MonoBehaviour
     private TapColor m_selectedColor;
     private Image m_progressImageBar;
     private Image m_progressImageBG;
+
+    // Highscore data
+    private int m_pointCount;
+    private int m_comboCount;
     
     #endregion
 
@@ -60,6 +72,13 @@ public class GameManager : MonoBehaviour
         m_progressImageBG = FullRect.GetComponent<Image>();
         m_progressImageBar.enabled = false;
         m_progressImageBG.enabled = false;
+        ProgressbarBG.enabled = false;
+
+        // Hide highscore stuff
+        TitleText.enabled = false;
+        AchievedPointsText.enabled = false;
+        SubmitScoreButton.gameObject.SetActive(false);
+        EnterScoreInput.gameObject.SetActive(false);
 
         m_currentPhase = GamePhase.SelectColor;
         m_levelIndex = 1;
@@ -80,6 +99,17 @@ public class GameManager : MonoBehaviour
 
                 // Set width
                 ProgressRect.sizeDelta = new Vector2((m_remainingTime / TOTAL_TIME) * m_progressFullWidth, ProgressRect.sizeDelta.y);
+
+                // Check if time's over
+                if(m_remainingTime <= 0)
+                {
+                    // Add current combopoint amount
+                    m_pointCount += m_comboCount;
+
+                    // Switch to highscore-screen
+                    PrepareHighscore();
+                }
+
                 break;
         }
     }
@@ -88,7 +118,7 @@ public class GameManager : MonoBehaviour
 
     #region " Color Selection "
 
-    public void PrepareColorSelection()
+    private void PrepareColorSelection()
     {
         switch (m_levelIndex)
         {
@@ -103,25 +133,48 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    private void PrepareHighscore()
+    {
+        m_currentPhase = GamePhase.Highscore;
+
+        // Hide progressbar
+        m_progressImageBar.enabled = false;
+        m_progressImageBG.enabled = false;
+        ProgressbarBG.enabled = false;
+
+        // Show title text
+        TitleText.enabled = true;
+        TitleText.text = "Submit Highscore";
+
+        // Show achieved points
+        AchievedPointsText.enabled = true;
+        AchievedPointsText.text = "Achieved " + m_pointCount + " points!";
+        SubmitScoreButton.gameObject.SetActive(true);
+        EnterScoreInput.gameObject.SetActive(true);
+
+        // Hide game screen
+        foreach (ColorTapButton b in ButtonPool) b.animator.SetTrigger("HideButton");
+    }
+
     public void SelectColor()
     {
         // Determine clicked button
         ColorTapButton btn = EventSystem.current.currentSelectedGameObject.GetComponent<ColorTapButton>();
         m_selectedColor = btn.TColor;
 
-        foreach(ColorTapButton b in SelectButtons)
-        {
-            b.animator.SetTrigger("HideButton");
-        }
+        foreach (ColorTapButton b in SelectButtons) b.animator.SetTrigger("HideButton");
 
         // Set game phase
         m_currentPhase = GamePhase.Game;
-        m_levelIndex = 1;
+
+        // Init combocount
+        m_comboCount = 0;
 
         // Set time & Show timebar
         m_remainingTime = TOTAL_TIME;
         m_progressImageBar.enabled = true;
         m_progressImageBG.enabled = true;
+        ProgressbarBG.enabled = true;
 
         SetupNewScreen();
     }
@@ -177,12 +230,23 @@ public class GameManager : MonoBehaviour
                 if(btn.TColor == m_selectedColor)
                 {
                     // Made it!
+                    m_pointCount += 1;
+
+                    // Increase combocount 
+                    m_comboCount += 1;
+
                     SetupNewScreen();
                 }
                 else
                 {
                     // Shake screen!
                     TapBoardAnimator.SetTrigger("Wrong");
+
+                    m_remainingTime -= 5.0f;
+
+                    // Add & Reset combo count
+                    m_pointCount += m_comboCount;
+                    m_comboCount = 0;
                 }
                 break;
         }
@@ -220,8 +284,18 @@ public class GameManager : MonoBehaviour
             ButtonPool[i].animator.SetTrigger("ShowButton");
         }
 
-        foreach (ColorTapButton btn in ButtonPool) btn.enabled = true;
+    }
 
+    #endregion
+
+    #region " Highscore "
+
+    public void SubmitScore()
+    {
+        if(EnterScoreInput.text.Trim().Length > 0)
+        {
+
+        }
     }
 
     #endregion
