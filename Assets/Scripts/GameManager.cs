@@ -169,8 +169,6 @@ public class GameManager : MonoBehaviour
         // Determine clicked button
         ColorTapButton btn = EventSystem.current.currentSelectedGameObject.GetComponent<ColorTapButton>();   
 
-
-
         // Check if it's selected color
         switch(m_levelIndex)
         {
@@ -205,15 +203,13 @@ public class GameManager : MonoBehaviour
         possibleColors.Add(TapColor.Red);
         possibleColors.Add(TapColor.Yellow);
 
-        // Enable all buttons
-        foreach (ColorTapButton btn in ButtonPool) btn.enabled = true;
-
         for (int i = 0; i < ButtonPool.Count; ++i)
         {
             // Get one random button out of the collection and display it
             int index = Random.Range(0, possibleColors.Count - 1);
             
             // Assign the color
+            ButtonPool[i].enabled = true;
             ButtonPool[i].TColor = possibleColors[index];
             SetupButtonColor(ButtonPool[i]);
 
@@ -223,6 +219,8 @@ public class GameManager : MonoBehaviour
             // Play Entrance animation
             ButtonPool[i].animator.SetTrigger("ShowButton");
         }
+
+        foreach (ColorTapButton btn in ButtonPool) btn.enabled = true;
 
     }
 
