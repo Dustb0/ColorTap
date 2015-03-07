@@ -42,6 +42,7 @@ public class GameManager : MonoBehaviour
     public Image ProgressbarBG;
     public GameObject GameMenuPanel;
     public Text HighscoreListeText;
+    public Image Logo;
 
     private const float TOTAL_TIME = 30;
 
@@ -84,6 +85,9 @@ public class GameManager : MonoBehaviour
         m_progressImageBar.enabled = false;
         m_progressImageBG.enabled = false;
         ProgressbarBG.enabled = false;
+
+        // Show menu
+        Logo.enabled = true;
 
         // Hide highscore stuff
         TitleText.enabled = false;
@@ -204,7 +208,9 @@ public class GameManager : MonoBehaviour
         ColorTapButton btn = EventSystem.current.currentSelectedGameObject.GetComponent<ColorTapButton>();
         m_selectedColor = btn.TColor;
 
+        // Hide main menu elements
         foreach (ColorTapButton b in SelectButtons) b.animator.SetTrigger("HideButton");
+        Logo.enabled = false;
 
         // Set game phase
         m_currentPhase = GamePhase.Game;
