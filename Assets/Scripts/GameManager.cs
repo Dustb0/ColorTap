@@ -110,8 +110,11 @@ public class GameManager : MonoBehaviour
                 // Set time
                 m_remainingTime -= Time.deltaTime;
 
-                // Set width
+                // Set width & position to align
+                Debug.Log(ProgressRect.anchoredPosition);
                 ProgressRect.sizeDelta = new Vector2((m_remainingTime / TOTAL_TIME) * m_progressFullWidth, ProgressRect.sizeDelta.y);
+                ProgressRect.anchoredPosition = new Vector2(ProgressRect.sizeDelta.x * 0.5f, ProgressRect.anchoredPosition.y);
+                
 
                 // Check if time's over
                 if(m_remainingTime <= 0)
