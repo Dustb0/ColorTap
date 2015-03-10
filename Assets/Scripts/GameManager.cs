@@ -40,7 +40,6 @@ public class GameManager : MonoBehaviour
     public Text AchievedPointsText;
     public Button SubmitScoreButton;
     public Image ProgressbarBG;
-    public GameObject GameMenuPanel;
     public Text HighscoreListeText;
     public Image Logo;
 
@@ -94,7 +93,6 @@ public class GameManager : MonoBehaviour
         AchievedPointsText.enabled = false;
         SubmitScoreButton.gameObject.SetActive(false);
         EnterScoreInput.gameObject.SetActive(false);
-        GameMenuPanel.SetActive(false);
         HighscoreListeText.enabled = false;
     }
 
@@ -157,7 +155,6 @@ public class GameManager : MonoBehaviour
         m_progressImageBar.enabled = false;
         m_progressImageBG.enabled = false;
         ProgressbarBG.enabled = false;
-        GameMenuPanel.SetActive(false);
 
         // Show title text
         TitleText.enabled = true;
@@ -226,7 +223,6 @@ public class GameManager : MonoBehaviour
         m_progressImageBar.enabled = true;
         m_progressImageBG.enabled = true;
         ProgressbarBG.enabled = true;
-        GameMenuPanel.SetActive(true);
 
         SetupNewScreen();
     }
