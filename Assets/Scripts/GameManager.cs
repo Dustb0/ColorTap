@@ -45,6 +45,7 @@ public class GameManager : MonoBehaviour
     public Text CurrentScoreText;
     public Button BackToMenuButton;
     public Button ShowHighscoreButton;
+    public Text ComboText;
 
     private const float TOTAL_TIME = 30;
 
@@ -55,10 +56,11 @@ public class GameManager : MonoBehaviour
     private TapColor m_selectedColor;
     private Image m_progressImageBar;
     private Image m_progressImageBG;
+    private Animator m_comboAnimator;
 
     // Highscore data
     private int m_pointCount;
-    private int m_comboCount;
+    private int m_comboLevel;
     
     #endregion
 
@@ -68,6 +70,8 @@ public class GameManager : MonoBehaviour
     {
         // Save progressrect
         m_progressFullWidth = FullRect.rect.width;
+
+        m_comboAnimator = ComboText.gameObject.GetComponent<Animator>();
 
         PrepareMainMenu();
 
@@ -91,17 +95,9 @@ public class GameManager : MonoBehaviour
                 // Set width & position to align
                 ProgressRect.sizeDelta = new Vector2((m_remainingTime / TOTAL_TIME) * m_progressFullWidth, ProgressRect.sizeDelta.y);
                 ProgressRect.anchoredPosition = new Vector2(ProgressRect.sizeDelta.x * 0.5f, ProgressRect.anchoredPosition.y);
-                
 
-                // Check if time's over
-                if(m_remainingTime <= 0)
-                {
-                    // Add current combopoint amount
-                    m_pointCount += m_comboCount;
-
-                    // Switch to highscore-screen,
-                    PrepareHighscore();
-                }
+                // Check if time's over & switch to highscore-screen,
+                if (m_remainingTime <= 0) PrepareHighscore();
 
                 break;
         }
@@ -179,7 +175,7 @@ public class GameManager : MonoBehaviour
             SubmitScoreButton.gameObject.SetActive(true);
             BackToMenuButton.gameObject.SetActive(false);
             EnterScoreInput.gameObject.SetActive(true);
-            AchievedPointsText.text = (Highscore.AchievedHighscorePlace + 1) + "th Place ~ Achieved " + m_pointCount + " points!";
+            AchievedPointsText.text = (Highscore.AchievedHighscorePlace + 1) + "th Place" + System.Environment.NewLine +  "Achieved " + m_pointCount + " points!";
         }
         else
         {
@@ -201,9 +197,7 @@ public class GameManager : MonoBehaviour
 
         // Set game phase
         m_currentPhase = GamePhase.Game;
-
-        // Init combocount
-        m_comboCount = 0;
+        m_comboLevel = 0;
 
         // Set time & Show timebar
         m_remainingTime = TOTAL_TIME;
@@ -212,6 +206,8 @@ public class GameManager : MonoBehaviour
         ProgressbarBG.enabled = true;
         CurrentScoreText.enabled = true;
         CurrentScoreText.text = "";
+        ComboText.enabled = true;
+        ComboText.text = "";
 
         SetupNewScreen();
     }
@@ -236,6 +232,7 @@ public class GameManager : MonoBehaviour
         m_progressImageBG.enabled = false;
         ProgressbarBG.enabled = false;
         CurrentScoreText.enabled = false;
+        ComboText.enabled = false;
         BackToMenuButton.gameObject.SetActive(false);
 
         // Show menu
@@ -293,7 +290,7 @@ public class GameManager : MonoBehaviour
     public void ColorTapClick()
     {
         // Determine clicked button
-        ColorTapButton btn = EventSystem.current.currentSelectedGameObject.GetComponent<ColorTapButton>();   
+        ColorTapButton btn = EventSystem.current.currentSelectedGameObject.GetComponent<ColorTapButton>();
 
         // Check if it's selected color
         switch(m_levelIndex)
@@ -304,9 +301,17 @@ public class GameManager : MonoBehaviour
                 {
                     // Made it!
                     m_pointCount += 1;
+                    if(m_comboLevel < 5) m_comboLevel += 1;
 
-                    // Increase combocount 
-                    m_comboCount += 1;
+                    // If combo, add another point
+                    if (m_comboLevel > 1)
+                    {
+                        m_pointCount += (m_comboLevel - 1);
+
+                        // Show text
+                        ComboText.text = "+" + m_comboLevel;
+                        m_comboAnimator.SetTrigger("ShowCombo");
+                    }
 
                     // Update score
                     CurrentScoreText.text = (m_pointCount).ToString();
@@ -317,12 +322,8 @@ public class GameManager : MonoBehaviour
                 {
                     // Shake screen!
                     TapBoardAnimator.SetTrigger("Wrong");
-
+                    m_comboLevel = 0;
                     m_remainingTime -= 5.0f;
-
-                    // Add & Reset combo count
-                    m_pointCount += m_comboCount;
-                    m_comboCount = 0;
                 }
                 break;
         }
