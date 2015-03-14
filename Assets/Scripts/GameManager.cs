@@ -44,6 +44,7 @@ public class GameManager : MonoBehaviour
     public Image Logo;
     public Text CurrentScoreText;
     public Button BackToMenuButton;
+    public Button ShowHighscoreButton;
 
     private const float TOTAL_TIME = 30;
 
@@ -73,31 +74,6 @@ public class GameManager : MonoBehaviour
         m_currentPhase = GamePhase.SelectColor;
         m_levelIndex = 1;
         PrepareColorSelection();
-    }
-
-    public void PrepareMainMenu()
-    {
-        // Hide all game buttons
-        foreach (ColorTapButton btn in ButtonPool) btn.enabled = false;
-
-        // Hide progressbar
-        m_progressImageBar = ProgressRect.GetComponent<Image>();
-        m_progressImageBG = FullRect.GetComponent<Image>();
-        m_progressImageBar.enabled = false;
-        m_progressImageBG.enabled = false;
-        ProgressbarBG.enabled = false;
-        CurrentScoreText.enabled = false;
-        BackToMenuButton.gameObject.SetActive(false);
-
-        // Show menu
-        Logo.enabled = true;
-
-        // Hide highscore stuff
-        TitleText.enabled = false;
-        AchievedPointsText.enabled = false;
-        SubmitScoreButton.gameObject.SetActive(false);
-        EnterScoreInput.gameObject.SetActive(false);
-        HighscoreListeText.enabled = false;
     }
 
     void Update()
@@ -133,7 +109,7 @@ public class GameManager : MonoBehaviour
 
     #endregion
 
-    #region " Color Selection "
+    #region " Menu Handling "
 
     private void PrepareColorSelection()
     {
@@ -150,7 +126,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    private void PrepareHighscore()
+    public void ShowHighscore(bool showBackToMenuButton)
     {
         m_currentPhase = GamePhase.Highscore;
 
@@ -164,27 +140,13 @@ public class GameManager : MonoBehaviour
         TitleText.enabled = true;
         TitleText.text = "Highscore";
         AchievedPointsText.enabled = true;
-        
-        // Only allow to submit highscore if it was better 
-        if(Highscore.AddNewScore(m_pointCount, EnterScoreInput.text))
-        {
-            SubmitScoreButton.gameObject.SetActive(true);
-            BackToMenuButton.gameObject.SetActive(false);
-            EnterScoreInput.gameObject.SetActive(true);
-            AchievedPointsText.text = (Highscore.AchievedHighscorePlace + 1) + "th Place ~ Achieved " + m_pointCount + " points!";
-        }
-        else
-        {
-            AchievedPointsText.text = "Achieved " + m_pointCount + " points!";
-            BackToMenuButton.gameObject.SetActive(true);
-        }
 
         // Display current Highscore positions
         HighscoreListeText.enabled = true;
 
         // Load highscore
         Highscore list = Highscore.Get();
-        string scoreList = ""; 
+        string scoreList = "";
 
         // Display entries
         for (int i = 0; i < Highscore.MAX_COUNT; ++i)
@@ -204,6 +166,27 @@ public class GameManager : MonoBehaviour
         // Set text
         HighscoreListeText.text = scoreList;
 
+        BackToMenuButton.gameObject.SetActive(showBackToMenuButton);
+    }
+
+    private void PrepareHighscore()
+    {
+        ShowHighscore(false);
+        
+        // Only allow to submit highscore if it was better 
+        if(Highscore.AddNewScore(m_pointCount, EnterScoreInput.text))
+        {
+            SubmitScoreButton.gameObject.SetActive(true);
+            BackToMenuButton.gameObject.SetActive(false);
+            EnterScoreInput.gameObject.SetActive(true);
+            AchievedPointsText.text = (Highscore.AchievedHighscorePlace + 1) + "th Place ~ Achieved " + m_pointCount + " points!";
+        }
+        else
+        {
+            AchievedPointsText.text = "Achieved " + m_pointCount + " points!";
+            BackToMenuButton.gameObject.SetActive(true);
+        }
+
         // Hide game screen
         foreach (ColorTapButton b in ButtonPool) b.animator.SetTrigger("HideButton");
     }
@@ -214,9 +197,7 @@ public class GameManager : MonoBehaviour
         ColorTapButton btn = EventSystem.current.currentSelectedGameObject.GetComponent<ColorTapButton>();
         m_selectedColor = btn.TColor;
 
-        // Hide main menu elements
-        foreach (ColorTapButton b in SelectButtons) b.animator.SetTrigger("HideButton");
-        Logo.enabled = false;
+        HideStartMenu();
 
         // Set game phase
         m_currentPhase = GamePhase.Game;
@@ -233,6 +214,42 @@ public class GameManager : MonoBehaviour
         CurrentScoreText.text = "";
 
         SetupNewScreen();
+    }
+
+    public void HideStartMenu()
+    {
+        // Hide main menu elements
+        foreach (ColorTapButton b in SelectButtons) b.animator.SetTrigger("HideButton");
+        Logo.enabled = false;
+        ShowHighscoreButton.gameObject.SetActive(false);
+    }
+
+    public void PrepareMainMenu()
+    {
+        // Hide all game buttons
+        foreach (ColorTapButton btn in ButtonPool) btn.enabled = false;
+
+        // Hide progressbar
+        m_progressImageBar = ProgressRect.GetComponent<Image>();
+        m_progressImageBG = FullRect.GetComponent<Image>();
+        m_progressImageBar.enabled = false;
+        m_progressImageBG.enabled = false;
+        ProgressbarBG.enabled = false;
+        CurrentScoreText.enabled = false;
+        BackToMenuButton.gameObject.SetActive(false);
+
+        // Show menu
+        Logo.enabled = true;
+        foreach (ColorTapButton b in SelectButtons) b.animator.SetTrigger("ShowButton");
+
+        ShowHighscoreButton.gameObject.SetActive(true);
+
+        // Hide highscore stuff
+        TitleText.enabled = false;
+        AchievedPointsText.enabled = false;
+        SubmitScoreButton.gameObject.SetActive(false);
+        EnterScoreInput.gameObject.SetActive(false);
+        HighscoreListeText.enabled = false;
     }
 
     #endregion
