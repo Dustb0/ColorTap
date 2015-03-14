@@ -115,9 +115,15 @@ public class GameManager : MonoBehaviour
                 SelectButtons[0].TColor = TapColor.Red;
                 SelectButtons[1].TColor = TapColor.Green;
                 SelectButtons[2].TColor = TapColor.Blue;
+                SelectButtons[3].TColor = TapColor.Magenta;
+                SelectButtons[4].TColor = TapColor.Yellow;
+                SelectButtons[5].TColor = TapColor.Cyan;
                 SetupButtonColor(SelectButtons[0]);
                 SetupButtonColor(SelectButtons[1]);
                 SetupButtonColor(SelectButtons[2]);
+                SetupButtonColor(SelectButtons[3]);
+                SetupButtonColor(SelectButtons[4]);
+                SetupButtonColor(SelectButtons[5]);
                 break;
         }
     }
