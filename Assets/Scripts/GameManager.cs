@@ -42,6 +42,8 @@ public class GameManager : MonoBehaviour
     public Image ProgressbarBG;
     public Text HighscoreListeText;
     public Image Logo;
+    public Text CurrentScoreText;
+    public Button BackToMenuButton;
 
     private const float TOTAL_TIME = 30;
 
@@ -73,7 +75,7 @@ public class GameManager : MonoBehaviour
         PrepareColorSelection();
     }
 
-    private void PrepareMainMenu()
+    public void PrepareMainMenu()
     {
         // Hide all game buttons
         foreach (ColorTapButton btn in ButtonPool) btn.enabled = false;
@@ -84,6 +86,8 @@ public class GameManager : MonoBehaviour
         m_progressImageBar.enabled = false;
         m_progressImageBG.enabled = false;
         ProgressbarBG.enabled = false;
+        CurrentScoreText.enabled = false;
+        BackToMenuButton.gameObject.SetActive(false);
 
         // Show menu
         Logo.enabled = true;
@@ -109,7 +113,6 @@ public class GameManager : MonoBehaviour
                 m_remainingTime -= Time.deltaTime;
 
                 // Set width & position to align
-                Debug.Log(ProgressRect.anchoredPosition);
                 ProgressRect.sizeDelta = new Vector2((m_remainingTime / TOTAL_TIME) * m_progressFullWidth, ProgressRect.sizeDelta.y);
                 ProgressRect.anchoredPosition = new Vector2(ProgressRect.sizeDelta.x * 0.5f, ProgressRect.anchoredPosition.y);
                 
@@ -155,22 +158,25 @@ public class GameManager : MonoBehaviour
         m_progressImageBar.enabled = false;
         m_progressImageBG.enabled = false;
         ProgressbarBG.enabled = false;
+        CurrentScoreText.enabled = false;
 
         // Show title text
         TitleText.enabled = true;
         TitleText.text = "Highscore";
         AchievedPointsText.enabled = true;
-
+        
         // Only allow to submit highscore if it was better 
         if(Highscore.AddNewScore(m_pointCount, EnterScoreInput.text))
         {
             SubmitScoreButton.gameObject.SetActive(true);
+            BackToMenuButton.gameObject.SetActive(false);
             EnterScoreInput.gameObject.SetActive(true);
             AchievedPointsText.text = (Highscore.AchievedHighscorePlace + 1) + "th Place ~ Achieved " + m_pointCount + " points!";
         }
         else
         {
-            AchievedPointsText.text = "Achieved " + m_pointCount + " points!";    
+            AchievedPointsText.text = "Achieved " + m_pointCount + " points!";
+            BackToMenuButton.gameObject.SetActive(true);
         }
 
         // Display current Highscore positions
@@ -223,6 +229,8 @@ public class GameManager : MonoBehaviour
         m_progressImageBar.enabled = true;
         m_progressImageBG.enabled = true;
         ProgressbarBG.enabled = true;
+        CurrentScoreText.enabled = true;
+        CurrentScoreText.text = "";
 
         SetupNewScreen();
     }
@@ -283,6 +291,9 @@ public class GameManager : MonoBehaviour
                     // Increase combocount 
                     m_comboCount += 1;
 
+                    // Update score
+                    CurrentScoreText.text = (m_pointCount).ToString();
+
                     SetupNewScreen();
                 }
                 else
@@ -329,7 +340,7 @@ public class GameManager : MonoBehaviour
             possibleColors.RemoveAt(index);
 
             // Play Entrance animation
-            ButtonPool[i].animator.SetTrigger("ShowButton");
+            ButtonPool[i].animator.SetTrigger("FlipButton");
         }
 
     }

@@ -50,7 +50,7 @@ public class Highscore : List<HighscoreEntry>
 
     #region " Constants "
 
-    public const int MAX_COUNT = 10;
+    public const int MAX_COUNT = 5;
     public const string HIGHSCORE_FILENAME = "hs2.ml";
 
     #endregion
