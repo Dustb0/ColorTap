@@ -140,7 +140,6 @@ public class GameManager : MonoBehaviour
         // Show title text
         TitleText.enabled = true;
         TitleText.text = "Highscore";
-        AchievedPointsText.enabled = true;
 
         // Display current Highscore positions
         HighscoreListeText.enabled = true;
@@ -174,6 +173,9 @@ public class GameManager : MonoBehaviour
     {
         ShowHighscore(false);
         
+		// Always show achieved points
+		AchievedPointsText.enabled = true;
+
         // Only allow to submit highscore if it was better 
 		if(m_pointCount > 0 && Highscore.AddNewScore(m_pointCount, EnterScoreInput.text))
         {
