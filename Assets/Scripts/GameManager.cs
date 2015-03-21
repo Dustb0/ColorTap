@@ -45,6 +45,7 @@ public class GameManager : MonoBehaviour
     public Text CurrentScoreText;
     public Button BackToMenuButton;
     public Button ShowHighscoreButton;
+	public Button TutotialButton;
     public Text ComboText;
     public Text PickColorText;
 
@@ -66,6 +67,12 @@ public class GameManager : MonoBehaviour
     #endregion
 
     #region " Engine Callbacks "
+
+	void Awake()
+	{
+		// Force binary writer to use a different encoding mode on iOS
+		System.Environment.SetEnvironmentVariable ("MONO_REFLECTION_SERIALIZER", "yes");
+	}
 
     void Start()
     {
@@ -226,6 +233,7 @@ public class GameManager : MonoBehaviour
         Logo.enabled = false;
         PickColorText.enabled = false;
         ShowHighscoreButton.gameObject.SetActive(false);
+		TutotialButton.gameObject.SetActive (false);
     }
 
     public void PrepareMainMenu()
@@ -249,6 +257,7 @@ public class GameManager : MonoBehaviour
         foreach (ColorTapButton b in SelectButtons) b.animator.SetTrigger("ShowButton");
 
         ShowHighscoreButton.gameObject.SetActive(true);
+		TutotialButton.gameObject.SetActive (true);
 
         // Hide highscore stuff
         TitleText.enabled = false;
