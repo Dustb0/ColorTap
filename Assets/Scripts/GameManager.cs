@@ -189,6 +189,7 @@ public class GameManager : MonoBehaviour
             SubmitScoreButton.gameObject.SetActive(true);
             BackToMenuButton.gameObject.SetActive(false);
             EnterScoreInput.gameObject.SetActive(true);
+            EnterScoreInput.text = "";
             AchievedPointsText.text = (Highscore.AchievedHighscorePlace + 1) + "th Place" + System.Environment.NewLine +  "Achieved " + m_pointCount + " points!";
         }
         else
@@ -222,6 +223,10 @@ public class GameManager : MonoBehaviour
         CurrentScoreText.text = "";
         ComboText.enabled = true;
         ComboText.text = "";
+
+        // Init points & other game values
+        m_pointCount = 0;
+        m_comboLevel = 0;
 
         SetupNewScreen();
     }
