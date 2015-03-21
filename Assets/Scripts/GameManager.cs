@@ -28,9 +28,6 @@ public class GameManager : MonoBehaviour
         Game,
         Highscore
     }
-
-    public RectTransform ProgressRect;
-    public RectTransform FullRect;
     public List<ColorTapButton> SelectButtons;
     public Animator TapBoardAnimator;
 
@@ -48,16 +45,15 @@ public class GameManager : MonoBehaviour
 	public Button TutotialButton;
     public Text ComboText;
     public Text PickColorText;
+	public Image ProgressImage;
+	public GameObject TimePanel;
 
     private const float TOTAL_TIME = 30;
-
-    private float m_progressFullWidth;
+	
     private GamePhase m_currentPhase;
     private float m_remainingTime;
     private int m_levelIndex;
     private TapColor m_selectedColor;
-    private Image m_progressImageBar;
-    private Image m_progressImageBG;
     private Animator m_comboAnimator;
 
     // Highscore data
@@ -76,9 +72,6 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
-        // Save progressrect
-        m_progressFullWidth = FullRect.rect.width;
-
         m_comboAnimator = ComboText.gameObject.GetComponent<Animator>();
 
         PrepareMainMenu();
@@ -101,8 +94,7 @@ public class GameManager : MonoBehaviour
                 m_remainingTime -= Time.deltaTime;
 
                 // Set width & position to align
-                ProgressRect.sizeDelta = new Vector2((m_remainingTime / TOTAL_TIME) * m_progressFullWidth, ProgressRect.sizeDelta.y);
-                ProgressRect.anchoredPosition = new Vector2(ProgressRect.sizeDelta.x * 0.5f, ProgressRect.anchoredPosition.y);
+				ProgressImage.fillAmount = m_remainingTime / TOTAL_TIME;
 
                 // Check if time's over & switch to highscore-screen,
                 if (m_remainingTime <= 0) PrepareHighscore();
@@ -141,8 +133,7 @@ public class GameManager : MonoBehaviour
         m_currentPhase = GamePhase.Highscore;
 
         // Hide progressbar & menu
-        m_progressImageBar.enabled = false;
-        m_progressImageBG.enabled = false;
+		TimePanel.SetActive (false);
         ProgressbarBG.enabled = false;
         CurrentScoreText.enabled = false;
 
@@ -184,7 +175,7 @@ public class GameManager : MonoBehaviour
         ShowHighscore(false);
         
         // Only allow to submit highscore if it was better 
-        if(Highscore.AddNewScore(m_pointCount, EnterScoreInput.text))
+		if(m_pointCount > 0 && Highscore.AddNewScore(m_pointCount, EnterScoreInput.text))
         {
             SubmitScoreButton.gameObject.SetActive(true);
             BackToMenuButton.gameObject.SetActive(false);
@@ -216,8 +207,8 @@ public class GameManager : MonoBehaviour
 
         // Set time & Show timebar
         m_remainingTime = TOTAL_TIME;
-        m_progressImageBar.enabled = true;
-        m_progressImageBG.enabled = true;
+        ProgressImage.enabled = true;
+		TimePanel.SetActive (true);
         ProgressbarBG.enabled = true;
         CurrentScoreText.enabled = true;
         CurrentScoreText.text = "";
@@ -246,11 +237,9 @@ public class GameManager : MonoBehaviour
         // Hide all game buttons
         foreach (ColorTapButton btn in ButtonPool) btn.enabled = false;
 
-        // Hide progressbar
-        m_progressImageBar = ProgressRect.GetComponent<Image>();
-        m_progressImageBG = FullRect.GetComponent<Image>();
-        m_progressImageBar.enabled = false;
-        m_progressImageBG.enabled = false;
+        // Hide progressbars
+        ProgressImage.enabled = false;
+		TimePanel.SetActive (false);
         ProgressbarBG.enabled = false;
         CurrentScoreText.enabled = false;
         ComboText.enabled = false;
