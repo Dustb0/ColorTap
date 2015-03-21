@@ -46,6 +46,7 @@ public class GameManager : MonoBehaviour
     public Button BackToMenuButton;
     public Button ShowHighscoreButton;
     public Text ComboText;
+    public Text PickColorText;
 
     private const float TOTAL_TIME = 30;
 
@@ -223,6 +224,7 @@ public class GameManager : MonoBehaviour
         // Hide main menu elements
         foreach (ColorTapButton b in SelectButtons) b.animator.SetTrigger("HideButton");
         Logo.enabled = false;
+        PickColorText.enabled = false;
         ShowHighscoreButton.gameObject.SetActive(false);
     }
 
@@ -243,6 +245,7 @@ public class GameManager : MonoBehaviour
 
         // Show menu
         Logo.enabled = true;
+        PickColorText.enabled = true;
         foreach (ColorTapButton b in SelectButtons) b.animator.SetTrigger("ShowButton");
 
         ShowHighscoreButton.gameObject.SetActive(true);
