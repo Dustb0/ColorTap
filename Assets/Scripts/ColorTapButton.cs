@@ -27,7 +27,7 @@ public class ColorTapButton : Button
         IsMinusButton = false;
         
         // Set scale
-        float scale = Random.Range(0.6f, 1.5f);
+        float scale = Random.Range(0.6f, 1.4f);
         transform.parent.localScale = new Vector3(scale, scale, 1);
     }
 
