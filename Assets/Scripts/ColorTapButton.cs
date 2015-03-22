@@ -25,6 +25,10 @@ public class ColorTapButton : Button
     {
         enabled = true;
         IsMinusButton = false;
+        
+        // Set scale
+        float scale = Random.Range(0.6f, 1.5f);
+        transform.parent.localScale = new Vector3(scale, scale, 1);
     }
 
 	void OnDisable()
