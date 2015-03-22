@@ -39,6 +39,8 @@ public class GameManager : MonoBehaviour
     public CanvasGroup TutorialGroup;
     public CanvasGroup EnterScoreGroup;
 
+	public AdScreen AdSystem;
+
     // Menu Controls
     public Text TitleText;
     public InputField EnterScoreInput;
@@ -211,6 +213,8 @@ public class GameManager : MonoBehaviour
 
         // Hide game screen
         foreach (ColorTapButton b in ButtonPool) b.animator.SetTrigger("HideButton");
+
+		AdSystem.ShowAd ();
     }
 
     public void SelectColor()
@@ -336,6 +340,7 @@ public class GameManager : MonoBehaviour
             {
                 // Oh shoot :S
                 m_pointCount -= 5;
+				m_comboLevel = 0;
 
                 // Make sure points don't go below 0
                 if (m_pointCount < 0) m_pointCount = 0;
