@@ -49,6 +49,7 @@ public class GameManager : MonoBehaviour
 	public GameObject TimePanel;
     public Sprite ButtonImageNormal;
     public Sprite ButtonImageMinus;
+    public GameObject TutorialPanel;
 
     public Color ComboTextColorPlus;
     public Color ComboTextColorMinus;
@@ -254,6 +255,7 @@ public class GameManager : MonoBehaviour
         CurrentScoreText.enabled = false;
         ComboText.enabled = false;
         BackToMenuButton.gameObject.SetActive(false);
+        TutorialPanel.gameObject.SetActive(false);
 
         // Show menu
         Logo.enabled = true;
@@ -269,6 +271,22 @@ public class GameManager : MonoBehaviour
         SubmitScoreButton.gameObject.SetActive(false);
         EnterScoreInput.gameObject.SetActive(false);
         HighscoreListeText.enabled = false;
+    }
+
+    public void ShowTutorial()
+    {
+        // Show title text
+        TitleText.enabled = true;
+        TitleText.text = "How to Play";
+
+        BackToMenuButton.gameObject.SetActive(true);
+
+        TutorialPanel.gameObject.SetActive(true);
+    }
+
+    public void HideTutorial()
+    {
+        TutorialPanel.gameObject.SetActive(false);
     }
 
     #endregion
