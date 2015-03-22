@@ -12,17 +12,20 @@ public enum TapColor
     Cyan
 }
 
-public enum TapType
-{
-    Full,
-    Half
-}
-
 public class ColorTapButton : Button
 {
 
     public TapColor TColor;
-    public TapType TType;
+    public bool IsMinusButton;
+
+    /// <summary>
+    /// Initializes the button and removes any modifier-flags for gameplay
+    /// </summary>
+    public void Init()
+    {
+        enabled = true;
+        IsMinusButton = false;
+    }
 
 	void OnDisable()
     {

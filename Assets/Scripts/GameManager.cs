@@ -47,14 +47,23 @@ public class GameManager : MonoBehaviour
     public Text PickColorText;
 	public Image ProgressImage;
 	public GameObject TimePanel;
+    public Sprite ButtonImageNormal;
+    public Sprite ButtonImageMinus;
 
+    public Color ComboTextColorPlus;
+    public Color ComboTextColorMinus;
+
+    // Constants
     private const float TOTAL_TIME = 30;
+    private const int TOTAL_TAPBUTTONS = 6;
 	
     private GamePhase m_currentPhase;
     private float m_remainingTime;
-    private int m_levelIndex;
     private TapColor m_selectedColor;
     private Animator m_comboAnimator;
+    private List<TapColor> m_possibleColors;
+    private List<int> m_availableIndices;
+    private int m_roundSeq;
 
     // Highscore data
     private int m_pointCount;
@@ -74,10 +83,13 @@ public class GameManager : MonoBehaviour
     {
         m_comboAnimator = ComboText.gameObject.GetComponent<Animator>();
 
+        // Initialize lists needed for screen setup
+        m_possibleColors = new List<TapColor>(TOTAL_TAPBUTTONS);
+        m_availableIndices = new List<int>(TOTAL_TAPBUTTONS);
+
         PrepareMainMenu();
 
         m_currentPhase = GamePhase.SelectColor;
-        m_levelIndex = 1;
         PrepareColorSelection();
     }
 
@@ -109,23 +121,18 @@ public class GameManager : MonoBehaviour
 
     private void PrepareColorSelection()
     {
-        switch (m_levelIndex)
-        {
-            case 1:
-                SelectButtons[0].TColor = TapColor.Red;
-                SelectButtons[1].TColor = TapColor.Green;
-                SelectButtons[2].TColor = TapColor.Blue;
-                SelectButtons[3].TColor = TapColor.Magenta;
-                SelectButtons[4].TColor = TapColor.Yellow;
-                SelectButtons[5].TColor = TapColor.Cyan;
-                SetupButtonColor(SelectButtons[0]);
-                SetupButtonColor(SelectButtons[1]);
-                SetupButtonColor(SelectButtons[2]);
-                SetupButtonColor(SelectButtons[3]);
-                SetupButtonColor(SelectButtons[4]);
-                SetupButtonColor(SelectButtons[5]);
-                break;
-        }
+        SelectButtons[0].TColor = TapColor.Red;
+        SelectButtons[1].TColor = TapColor.Green;
+        SelectButtons[2].TColor = TapColor.Blue;
+        SelectButtons[3].TColor = TapColor.Magenta;
+        SelectButtons[4].TColor = TapColor.Yellow;
+        SelectButtons[5].TColor = TapColor.Cyan;
+        SetupButtonColor(SelectButtons[0]);
+        SetupButtonColor(SelectButtons[1]);
+        SetupButtonColor(SelectButtons[2]);
+        SetupButtonColor(SelectButtons[3]);
+        SetupButtonColor(SelectButtons[4]);
+        SetupButtonColor(SelectButtons[5]);
     }
 
     public void ShowHighscore(bool showBackToMenuButton)
@@ -220,6 +227,7 @@ public class GameManager : MonoBehaviour
         // Init points & other game values
         m_pointCount = 0;
         m_comboLevel = 0;
+        m_roundSeq = 0;
 
         SetupNewScreen();
     }
@@ -306,41 +314,61 @@ public class GameManager : MonoBehaviour
         // Determine clicked button
         ColorTapButton btn = EventSystem.current.currentSelectedGameObject.GetComponent<ColorTapButton>();
 
-        // Check if it's selected color
-        switch(m_levelIndex)
+        // Check if color matches
+        if (btn.TColor == m_selectedColor)
         {
-            case 1:
-                // Simple 1/1 color 
-                if(btn.TColor == m_selectedColor)
+            // Check if it's a minus button!
+            if(btn.IsMinusButton)
+            {
+                // Oh shoot :S
+                m_pointCount -= 1;
+
+                // Make sure points don't go below 0
+                if (m_pointCount < 0) m_pointCount = 0;
+
+                // Show text
+                ComboText.color = ComboTextColorMinus;
+                ComboText.text = "-1";
+                m_comboAnimator.SetTrigger("ShowCombo");
+
+                // Update score
+                CurrentScoreText.text = (m_pointCount).ToString();
+            }
+            else
+            {
+                // Made it!
+                m_pointCount += 1;
+                if (m_comboLevel < 5) m_comboLevel += 1;
+
+                // If combo, add another point
+                if (m_comboLevel > 1)
                 {
-                    // Made it!
-                    m_pointCount += 1;
-                    if(m_comboLevel < 5) m_comboLevel += 1;
+                    m_pointCount += (m_comboLevel - 1);
 
-                    // If combo, add another point
-                    if (m_comboLevel > 1)
-                    {
-                        m_pointCount += (m_comboLevel - 1);
-
-                        // Show text
-                        ComboText.text = "+" + m_comboLevel;
-                        m_comboAnimator.SetTrigger("ShowCombo");
-                    }
-
-                    // Update score
-                    CurrentScoreText.text = (m_pointCount).ToString();
-
-                    SetupNewScreen();
+                    // Show text
+                    ComboText.color = ComboTextColorPlus;
+                    ComboText.text = "+" + m_comboLevel;
+                    m_comboAnimator.SetTrigger("ShowCombo");
                 }
-                else
-                {
-                    // Shake screen!
-                    TapBoardAnimator.SetTrigger("Wrong");
-                    m_comboLevel = 0;
-                    m_remainingTime -= 5.0f;
-                }
-                break;
+
+                // Update score
+                CurrentScoreText.text = (m_pointCount).ToString();
+
+                SetupNewScreen();
+            }
         }
+        else
+        {
+            WrongButtonFeedback();
+        }
+    }
+
+    private void WrongButtonFeedback()
+    {
+        // Shake screen!
+        TapBoardAnimator.SetTrigger("Wrong");
+        m_comboLevel = 0;
+        m_remainingTime -= 5.0f;
     }
 
     #endregion
@@ -350,30 +378,112 @@ public class GameManager : MonoBehaviour
     private void SetupNewScreen()
     {
         // Collect possible colors
-        List<TapColor> possibleColors = new List<TapColor>(ButtonPool.Count);
-        possibleColors.Add(TapColor.Blue);
-        possibleColors.Add(TapColor.Cyan);
-        possibleColors.Add(TapColor.Green);
-        possibleColors.Add(TapColor.Magenta);
-        possibleColors.Add(TapColor.Red);
-        possibleColors.Add(TapColor.Yellow);
+        m_possibleColors.Clear();
+        m_possibleColors.Add(TapColor.Blue);
+        m_possibleColors.Add(TapColor.Cyan);
+        m_possibleColors.Add(TapColor.Green);
+        m_possibleColors.Add(TapColor.Magenta);
+        m_possibleColors.Add(TapColor.Red);
+        m_possibleColors.Add(TapColor.Yellow);
 
-        for (int i = 0; i < ButtonPool.Count; ++i)
+        // Advance roundnumber and determine what screen type to show
+        m_roundSeq += 1;
+        switch(m_roundSeq)
+        {
+            case 1:
+                NormalScreen();
+                break;
+
+            case 2:
+                ScoreModifierScreen(true);
+                m_roundSeq = 0; // Reset
+                break;
+        }
+
+    }
+
+    private void NormalScreen()
+    {
+        for (int i = 0; i < TOTAL_TAPBUTTONS; ++i)
         {
             // Get one random button out of the collection and display it
-            int index = Random.Range(0, possibleColors.Count - 1);
-            
+            int index = Random.Range(0, m_possibleColors.Count - 1);
+
             // Assign the color
-            ButtonPool[i].enabled = true;
-            ButtonPool[i].TColor = possibleColors[index];
+            ButtonPool[i].Init();
+            ButtonPool[i].image.sprite = ButtonImageNormal;
+            ButtonPool[i].TColor = m_possibleColors[index];
             SetupButtonColor(ButtonPool[i]);
 
             // Remove the assigned color from the list of possible choices
-            possibleColors.RemoveAt(index);
+            m_possibleColors.RemoveAt(index);
 
             // Play Entrance animation
             ButtonPool[i].animator.SetTrigger("FlipButton");
         }
+    }
+
+    private void SetupButton(int index, TapColor tcolor, bool modifierMinus)
+    {
+        ButtonPool[index].Init();
+
+        // Check for special modifier 
+        if(modifierMinus)
+        {
+            ButtonPool[index].IsMinusButton = true;
+            ButtonPool[index].image.sprite = ButtonImageMinus;
+        }
+        else
+        {
+            ButtonPool[index].image.sprite = ButtonImageNormal;
+        }
+        ButtonPool[index].TColor = tcolor;
+        SetupButtonColor(ButtonPool[index]);
+    }
+
+    private void ScoreModifierScreen(bool minusButton)
+    {
+        // Create an array with all the remaining indices 
+        for (short i = 0; i < TOTAL_TAPBUTTONS; ++i) m_availableIndices.Add(i);
+
+        // Get an index for the modifier button
+        int modifierIndex = m_availableIndices[Random.Range(0, m_availableIndices.Count - 1)];
+        m_availableIndices.Remove(modifierIndex);
+
+        // Setup the modifier button
+        SetupButton(modifierIndex, m_selectedColor, true);
+
+        // Get an index for the normal button
+        int normalIndex = m_availableIndices[Random.Range(0, m_availableIndices.Count - 1)];
+        m_availableIndices.Remove(normalIndex);
+
+        // Set up the obligatory, selected "normal" color button
+        SetupButton(normalIndex, m_selectedColor, false);
+        m_possibleColors.Remove(m_selectedColor);
+
+        // Clear pool of available indices
+        m_availableIndices.Clear();
+
+        // Move through all the other buttons and regularly assign their colors
+        for (int i = 0; i < ButtonPool.Count; ++i)
+        {
+            // Only setup button if it wasn't already setup 
+            if(i != modifierIndex && i != normalIndex)
+            { 
+                // Get one random button out of the collection and display it
+                int index = Random.Range(0, m_possibleColors.Count - 1);
+
+                // Assign the color etc.
+                SetupButton(i, m_possibleColors[index], false);
+
+                // Remove the assigned color from the list of possible choices
+                m_possibleColors.RemoveAt(index);
+            }
+
+            // Alawys play the entrance animation
+            ButtonPool[i].animator.SetTrigger("FlipButton");
+        }
+
 
     }
 
