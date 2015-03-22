@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using UnityEngine.SocialPlatforms;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -98,6 +99,9 @@ public class GameManager : MonoBehaviour
 
         m_currentPhase = GamePhase.SelectColor;
         PrepareColorSelection();
+
+        // Call game center authentication
+        Social.Active.Authenticate(Social.localUser, AuthenticateGC);
     }
 
     void Update()
@@ -502,6 +506,24 @@ public class GameManager : MonoBehaviour
             ButtonPool[i].animator.SetTrigger("FlipButton");
         }
 
+
+    }
+
+    #endregion
+
+    #region " Game Center Integration "
+
+    private void AuthenticateGC(bool result)
+    {
+        // Check if we could log in into the game center
+        if(result)
+        {
+            Social.ReportScore(222, "BestScores", ReportScoreGC);
+        }
+    }
+
+    private void ReportScoreGC(bool result)
+    {
 
     }
 
