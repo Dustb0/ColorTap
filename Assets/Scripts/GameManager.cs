@@ -38,6 +38,7 @@ public class GameManager : MonoBehaviour
     public CanvasGroup HighscoreGroup;
     public CanvasGroup TutorialGroup;
     public CanvasGroup EnterScoreGroup;
+    public CanvasGroup BackToMenuGroup;
 
 	public AdScreen AdSystem;
 
@@ -47,7 +48,6 @@ public class GameManager : MonoBehaviour
     public Text AchievedPointsText;
     public Text HighscoreListeText;
     public Text CurrentScoreText;
-    public Button BackToMenuButton;
     public Text ComboText;
 	public Image ProgressImage;
     public Sprite ButtonImageNormal;
@@ -184,7 +184,7 @@ public class GameManager : MonoBehaviour
         // Set text
         HighscoreListeText.text = scoreList;
 
-        BackToMenuButton.image.enabled = showBackToMenuButton;
+        BackToMenuGroup.alpha = showBackToMenuButton ? 1 : 0;
         AchievedPointsText.enabled = !showBackToMenuButton;
         SetupCanvasGroup(EnterScoreGroup, !showBackToMenuButton);
     }
@@ -199,7 +199,7 @@ public class GameManager : MonoBehaviour
         // Only allow to submit highscore if it was better 
 		if(m_pointCount > 0 && Highscore.AddNewScore(m_pointCount, EnterScoreInput.text))
         {
-            BackToMenuButton.image.enabled = false;
+            BackToMenuGroup.alpha = 0;
             SetupCanvasGroup(EnterScoreGroup, true);
             EnterScoreInput.text = "";
             AchievedPointsText.text = (Highscore.AchievedHighscorePlace + 1) + "th Place" + System.Environment.NewLine +  "Achieved " + m_pointCount + " points!";
@@ -208,7 +208,7 @@ public class GameManager : MonoBehaviour
         {
             SetupCanvasGroup(EnterScoreGroup, false);
             AchievedPointsText.text = "Achieved " + m_pointCount + " points!";
-            BackToMenuButton.image.enabled = true;
+            BackToMenuGroup.alpha = 1;
         }
 
         // Hide game screen
@@ -267,8 +267,7 @@ public class GameManager : MonoBehaviour
         SetupCanvasGroup(HighscoreGroup, false);
         SetupCanvasGroup(TutorialGroup, true);
         TitleText.text = "How to Play";
-
-        BackToMenuButton.image.enabled = true;
+        BackToMenuGroup.alpha = 1;
     }
 
     public void HideSubMenu()
