@@ -1,10 +1,10 @@
 ﻿using System;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.Advertisements;
 
 public class AdScreen : MonoBehaviour
 {
-
 	private bool m_showAd;
 	private ShowOptions m_adOptions;
 
@@ -15,7 +15,7 @@ public class AdScreen : MonoBehaviour
 		// Check if we can show an ad
 		if (Advertisement.isSupported) 
 		{
-			Advertisement.debugLevel = Advertisement.DebugLevel.NONE;
+			//Advertisement.debugLevel = Advertisement.DebugLevel.NONE;
 			Advertisement.Initialize ("24971", false);
 
 			// Setup show options
@@ -32,10 +32,13 @@ public class AdScreen : MonoBehaviour
 
 	void Update()
 	{
-		if (m_showAd && Advertisement.isReady("pictureZone")) 
+		if (m_showAd) 
 		{
-			Advertisement.Show("pictureZone", m_adOptions);
-			m_showAd = false;
+			if (Advertisement.isReady ()) 
+			{
+				Advertisement.Show (null, m_adOptions);
+				m_showAd = false;
+			}
 		}
 	}
 
