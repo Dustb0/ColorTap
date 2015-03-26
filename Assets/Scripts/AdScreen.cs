@@ -8,7 +8,6 @@ public class AdScreen : MonoBehaviour
 	private bool m_showAd;
 	private ShowOptions m_adOptions;
 	private float m_secsSinceLastConnection;
-	public Text DebugText;
 
 	#region " Engine Callbacks "
     
@@ -35,8 +34,6 @@ public class AdScreen : MonoBehaviour
 		// Try to reload connection
 		m_secsSinceLastConnection += Time.deltaTime;
 
-		DebugText.text = "Reconnect in " + m_secsSinceLastConnection;
-
 		if(m_secsSinceLastConnection >= 30)
 		{
 			m_secsSinceLastConnection = 0;
@@ -46,8 +43,6 @@ public class AdScreen : MonoBehaviour
 
 	void Update()
 	{
-		DebugText.text = Advertisement.isReady().ToString();
-
 		if (Advertisement.isReady ()) 
 		{
 			if (m_showAd) 
@@ -75,20 +70,4 @@ public class AdScreen : MonoBehaviour
 	}
 
 	#endregion
-
-//    void OnGUI()
-//    {
-//        if (GUI.Button(new Rect(10, 10, 150, 50), Advertisement.isReady("pictureZone") ? "Show Ad" : "Waiting..."))
-//        {
-//            // Show with default zone, pause engine and print result to debug log
-//            Advertisement.Show("pictureZone", new ShowOptions
-//            {
-//                pause = true,
-//                resultCallback = result =>
-//                {
-//                    Debug.Log(result.ToString());
-//                }
-//            });
-//        }
-//    }
 }
