@@ -332,8 +332,6 @@ public class GameManager : MonoBehaviour
         // Determine clicked button
         ColorTapButton btn = EventSystem.current.currentSelectedGameObject.GetComponent<ColorTapButton>();
 
-		AudioSystem.Play ();
-
         // Check if color matches
         if (btn.TColor == m_selectedColor)
         {
@@ -346,6 +344,8 @@ public class GameManager : MonoBehaviour
 
                 // Make sure points don't go below 0
                 if (m_pointCount < 0) m_pointCount = 0;
+
+				AudioSystem.pitch = 0.5f;
 
                 // Show text
                 ComboText.color = ComboTextColorMinus;
@@ -360,6 +360,8 @@ public class GameManager : MonoBehaviour
                 // Made it!
                 m_pointCount += 1;
                 if (m_comboLevel < 5) m_comboLevel += 1;
+
+				AudioSystem.pitch = 1.0f;
 
                 // If combo, add another point
                 if (m_comboLevel > 1)
@@ -380,8 +382,12 @@ public class GameManager : MonoBehaviour
         }
         else
         {
+			AudioSystem.pitch = 0.5f;
             WrongButtonFeedback();
         }
+
+		// Soundfeedback
+		AudioSystem.Play ();
     }
 
     private void WrongButtonFeedback()
