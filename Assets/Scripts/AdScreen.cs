@@ -34,7 +34,9 @@ public class AdScreen : MonoBehaviour
 	{
 		// Try to reload connection
 		m_secsSinceLastConnection += Time.deltaTime;
-		
+
+		DebugText.text = "Reconnect in " + m_secsSinceLastConnection;
+
 		if(m_secsSinceLastConnection >= 30)
 		{
 			m_secsSinceLastConnection = 0;
