@@ -30,6 +30,7 @@ public class GameManager : MonoBehaviour
     }
     public List<ColorTapButton> SelectButtons;
     public Animator TapBoardAnimator;
+	public AudioSource AudioSystem;
 
     // Canvas Groups
     public CanvasGroup StartMenuGroup;
@@ -330,6 +331,8 @@ public class GameManager : MonoBehaviour
     {
         // Determine clicked button
         ColorTapButton btn = EventSystem.current.currentSelectedGameObject.GetComponent<ColorTapButton>();
+
+		AudioSystem.Play ();
 
         // Check if color matches
         if (btn.TColor == m_selectedColor)

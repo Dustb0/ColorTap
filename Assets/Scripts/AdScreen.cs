@@ -7,39 +7,54 @@ public class AdScreen : MonoBehaviour
 {
 	private bool m_showAd;
 	private ShowOptions m_adOptions;
+	private float m_secsSinceLastConnection;
+	public Text DebugText;
 
 	#region " Engine Callbacks "
     
 	void Awake() 
 	{
 		// Check if we can show an ad
-		if (Advertisement.isSupported) 
-		{
-			//Advertisement.debugLevel = Advertisement.DebugLevel.NONE;
-			Advertisement.Initialize ("24971", false);
-
-			// Setup show options
-			m_adOptions = new ShowOptions();
-			m_adOptions.pause = true;
-			m_adOptions.resultCallback += CloseAd;
-		} 
-		else 
-		{
-			// Ads not supported, delete component
-			Destroy(this);
-		}
+		if (Advertisement.isSupported) ConnectToAdSys (); 
+		else Destroy(this); 
     }
+
+	private void ConnectToAdSys()
+	{
+		//Advertisement.debugLevel = Advertisement.DebugLevel.NONE;
+		Advertisement.Initialize ("24971", false);
+		
+		// Setup show options
+		m_adOptions = new ShowOptions();
+		m_adOptions.pause = true;
+		m_adOptions.resultCallback += CloseAd;
+	}
+
+	private void Reconnect()
+	{
+		// Try to reload connection
+		m_secsSinceLastConnection += Time.deltaTime;
+		
+		if(m_secsSinceLastConnection >= 30)
+		{
+			m_secsSinceLastConnection = 0;
+			ConnectToAdSys();
+		}
+	}
 
 	void Update()
 	{
-		if (m_showAd) 
+		DebugText.text = Advertisement.isReady().ToString();
+
+		if (Advertisement.isReady ()) 
 		{
-			if (Advertisement.isReady ()) 
+			if (m_showAd) 
 			{
 				Advertisement.Show (null, m_adOptions);
 				m_showAd = false;
 			}
 		}
+		else Reconnect();
 	}
 
 	void CloseAd(ShowResult result)
