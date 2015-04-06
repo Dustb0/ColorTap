@@ -31,6 +31,7 @@ public class GameManager : MonoBehaviour
     public List<ColorTapButton> SelectButtons;
     public Animator TapBoardAnimator;
 	public AudioSource AudioSystem;
+    public SocialShare ShareSystem;
 
     // Canvas Groups
     public CanvasGroup StartMenuGroup;
@@ -94,6 +95,7 @@ public class GameManager : MonoBehaviour
         // Hide everything else but the start menu
         SetupCanvasGroup(GameGroup, false);
         SetupCanvasGroup(SubMenuGroup, false);
+        ShareSystem.HideMenu();
 
         ShowStartMenu();
 
