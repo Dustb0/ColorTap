@@ -288,6 +288,10 @@ public class GameManager : MonoBehaviour
             m_currentPhase = GamePhase.SelectColor;
 
             HideSubMenu();
+
+			ShareSystem.ShareText = "Yay, I scored " + Highscore.PreparedEntry.ScorePoints + " Points in ColorTap!";
+			ShareSystem.InitMenu();
+
             ShowStartMenu();
         }
     }

@@ -13,11 +13,6 @@ public class HighscoreEntry : ISerializable
     public int ScorePoints;
     public string PlayerName;
 
-    public float HighscoreSum()
-    {
-        return ScorePoints;
-    }
-
     public HighscoreEntry(int scorePoints, string playerName)
     {
         ScorePoints = scorePoints;
@@ -116,21 +111,21 @@ public class Highscore : List<HighscoreEntry>
     /// <returns>FALSE if the entry was not good enough to be inserted in the highscore list</returns>
     public bool InsertEntry(HighscoreEntry newEntry)
     {
-        // If there are more entries, loop through the list and get the correct ranking for the current entry
-        for (int i = 0; i < MAX_COUNT - 1; ++i)
+        // If there are already some entries, loop through the list and get the correct ranking for the current entry
+        for (int i = 0; i < MAX_COUNT; ++i)
         {
             // Check if there's an entry at the current position
             if (i < this.Count)
             {
                 // Insert new item at the current position, if the current entry has a lower score
-                if (this[i].HighscoreSum() < newEntry.HighscoreSum())
+				if (this[i].ScorePoints < newEntry.ScorePoints)
                 {
                     this.Insert(i, newEntry);
 
                     // Check if there are more entries in the list than allowed
                     if (this.Count > MAX_COUNT)
                     {
-                        this.RemoveAt(MAX_COUNT - 1); // Remove last entry
+                        this.RemoveAt(MAX_COUNT); // Remove last entry
                     }
 
                     s_achievedHighscorePlace = i;
