@@ -42,8 +42,6 @@ public class GameManager : MonoBehaviour
     public CanvasGroup EnterScoreGroup;
     public CanvasGroup BackToMenuGroup;
 
-	public AdScreen AdSystem;
-
     // Menu Controls
     public Text TitleText;
     public InputField EnterScoreInput;
@@ -216,8 +214,6 @@ public class GameManager : MonoBehaviour
 
         // Hide game screen
         foreach (ColorTapButton b in ButtonPool) b.animator.SetTrigger("HideButton");
-
-		AdSystem.ShowAd ();
     }
 
     public void SelectColor()
